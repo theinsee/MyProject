@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+    </script>
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.19.0/firebase-app.js"></script>
+    <!-- <script src="https://www.gstatic.com/firebasejs/7.19.0/firebase-analytics.js"></script> -->
+    <script src="https://www.gstatic.com/firebasejs/7.19.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.19.0/firebase-database.js"></script>
+    <style>
+        .card {
+            /* Add shadows to create the "card" effect */
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            transition: 0.3s;
+        }
+
+        /* On mouse-over, add a deeper shadow */
+        .card:hover {
+            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        /* Add some padding inside the card container */
+        .container {
+            padding: 2px 16px;
+        }
+
+        .coloractive {
+            background-color: palegreen;
+        }
+
+        .opchat {
+            display: none;
+        }
+
+        #contact {
+            z-index: -1;
+            position: relative;
+            top: -200px;
+            padding-top: 200px;
+        }
+
+        .example::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .example {
+            -ms-overflow-style: none;
+            /* IE and Edge */
+            scrollbar-width: none;
+            /* Firefox */
+        }
+    </style>
+    <title>Live Chat</title>
+</head>
+
+<body>
+
+    <div id="app">
+        <div class="card text-center" v-bind:class="{opchat : isOpchat}" style="margin: 25px;">
+            <div class="card-header">
+                Username
+            </div>
+            <div class="card-body">
+                <input class="form-control" type="text" v-model="user_name" placeholder="Username of you"
+                    v-on:keyup.enter="joinchat">
+            </div>
+            <div class="card-footer text-muted">
+                <button class="form-control btn-primary" @click="joinchat">Join Chat!</button>
+            </div>
+        </div>
+        <div v-bind:class="{opchat : !isOpchat}">
+            <div class="card" style="margin: 15px;">
+                <div class="card-body" style="height: 500px;">
+                    <span v-if="count_noti.length !=0" class="badge badge-danger"
+                        style="position: absolute; right: 5px; top: 5px;">{{count_noti.length}}</span>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="card" style="overflow: auto;">
+                                <div class="card-body" style="height: 398px;">
+                                    <div v-for="item in chat_select" class="card" style=" cursor: pointer;"
+                                        v-bind:class="{ coloractive: item.user_read }" @click="atvchat(item.chat_room)">
+                                        <div class="card-body" @click="setroom(item.chat_room)">
+                                            {{item.chanel_name}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer text-muted">
+                                    <button type="button" class="form-control btn btn-primary" data-toggle="modal"
+                                        data-target="#exampleModal">
+                                        Create Room!
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-8">
+                            <div class="card">
+                                <div class="card-body example" id="container"
+                                    style="height: 460px; overflow-y: auto; background-color: lavender;">
+                                    <div v-for="(item,index) in data_noti" :id="index">
+                                        <div class="row" v-if="item.user_name == user_name">
+                                            <div class="col-4">
+                                            </div>
+                                            <div class="col-8">
+                                                <div style="text-align: right;">
+                                                    <div style="position: absolute; right: 15px;">{{item.user_name}}
+                                                    </div>
+                                                    <br>
+                                                    <span class="badge badge-primary"
+                                                        style="padding: 15px;font-size: 15px;">{{item.message}}</span>
+                                                    <div style="right: 15px;font-size: 10px;">
+                                                        {{item.timestamp.substring(10,item.timestamp.length-3)}}</div>
+                                                    <br>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row" v-else>
+                                            <div class="col-8">
+                                                <div style="text-align: left;">
+                                                    <div style="position: absolute; ;left: 15px;">{{item.user_name}}
+                                                    </div>
+                                                    <br>
+                                                    <span class="badge badge-light"
+                                                        style="padding: 15px; font-size: 15px;">{{item.message}}</span>
+                                                    <div style="left: 15px;font-size: 10px;">
+                                                        {{item.timestamp.substring(10,item.timestamp.length-3)}}</div>
+                                                    <br>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="focus"></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" style="margin: 15px;">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-4">
+                            <!-- <input class="form-control" type="text" v-model="user_name" placeholder="Name" disabled> -->
+                            <h3 style="text-align: center;">{{user_name}}</h3>
+                        </div>
+                        <div class="col-7">
+                            <input id="mess" ref="mess" type="text" class="form-control" style="max-width: 100%;"
+                                v-model="message" placeholder="message" v-on:keyup.enter="sendmessage()"
+                                @click="readmessage()" @change="readmessage()">
+                        </div>
+                        <div class="col-1">
+                            <button class="form-control btn-success" @click="sendmessage()">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" style="margin: 15px;">
+                <div class="card-body">
+                    <button class="form-control btn-danger" @click="joinchat">Logout</button>
+                </div>
+            </div>
+        </div>
+        <!-- modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Create Room</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input class="form-control" type="text" v-model="c_name">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" @click="createroom(c_name)">Create</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+
+
+</body>
+<script>
+    var firebaseConfig = {
+        apiKey: "AIzaSyD_0K30cydJwiZDMDHV1ciojlqFv0bh_JI",
+        authDomain: "vuetest-ac907.firebaseapp.com",
+        databaseURL: "https://vuetest-ac907.firebaseio.com",
+        projectId: "vuetest-ac907",
+        storageBucket: "vuetest-ac907.appspot.com",
+        messagingSenderId: "824560071026",
+        appId: "1:824560071026:web:a9796b545d705116d5edeb",
+        measurementId: "G-59T5Q5E7GR"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    // firebase.analytics();
+    var db = firebase.database();
+
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            user_name: "",
+            message: "",
+            noti: "",
+            last_key: 0,
+            data_noti: [],
+            count_noti: [],
+            count: 0,
+            chat_select: [],
+            chat_room: "",
+            chat_name: "",
+            timestamp: "",
+            last_message: 0,
+            isActive: false,
+            isOpchat: false,
+            user_read_man: [],
+            c_name: ""
+        },
+        mounted() {
+            var dbs = db.ref("live_chat").on("value", function (snapshot) {
+                var key = Object.keys(snapshot.val());
+                var data = snapshot.val();
+                app.chat_select = []
+                for (const key in data) {
+                    if (data.hasOwnProperty(key)) {
+                        const element = data[key];
+                        var dd = {}
+                        dd.chat_room = key
+                        dd.chanel_name = element.chanel_name
+                        if (key == app.chat_room) {
+                            dd.user_read = true
+                        } else {
+                            dd.user_read = false
+                        }
+                        app.chat_select.push(dd);
+                    }
+                }
+            })
+
+
+        },
+        created() {
+
+        },
+        methods: {
+            getNow: function () {
+                var today = new Date();
+                var date = today.getFullYear();
+                if (today.getMonth() + 1 < 10) {
+                    date = date + '-0' + (today.getMonth() + 1);
+                } else {
+                    date = date + '-' + (today.getMonth() + 1);
+                }
+                if (today.getDate() < 10) {
+                    date = date + '-0' + today.getDate();
+                } else {
+                    date = date + '-' + today.getDate();
+                }
+                var time = ""
+                if (today.getHours() < 10) {
+                    time = time + '0' + today.getHours() + ":"
+                } else {
+                    time = time + today.getHours() + ":"
+                }
+                if (today.getMinutes() < 10) {
+                    time = time + "0" + today.getMinutes();
+                } else {
+                    time = time + today.getMinutes();
+                }
+                if (today.getSeconds() < 10) {
+                    time = time + ":0" + today.getSeconds();
+                } else {
+                    time = time + ":" + today.getSeconds();
+                }
+                var dateTime = date + ' ' + time;
+                this.timestamp = dateTime;
+            },
+            sendmessage: function () {
+                if (app.message != "") {
+                    this.getNow();
+                    var data = {
+                        user_name: app.user_name,
+                        user_read: [app.user_name],
+                        message: app.message,
+                        timestamp: app.timestamp
+                    }
+                    // console.log(data);
+                    var dbsend = db.ref("live_chat/" + app.chat_room + "/" + (app.last_message + 1)).set(
+                        data)
+                    app.message = ""
+                }
+
+            },
+            readmessage: function () {
+                app.count_noti.forEach(element => {
+                    // console.log(element);
+                    var nub = 0
+                    app.user_read_man.forEach(e => {
+                        // console.log(e);
+                        if (e == app.user_name) {
+                            nub += 1
+                        }
+                    });
+                    console.log(nub);
+                    if (nub == 0) {
+                        var data = app.user_read_man
+                        data.push(app.user_name)
+                        // console.log(element);
+                        var dbuser_read = db.ref("live_chat/" + app.chat_room + "/" + element +
+                            "/user_read").set(data);
+                    }
+                });
+            },
+            setuser: function () {
+                this.mounted()
+            },
+            setroom: function (chat_room) {
+                app.chat_room = chat_room
+                var dbs = db.ref("live_chat/" + chat_room).on("value", function (snapshot) {
+                    if (app.chat_room == chat_room) {
+                        app.data_noti = []
+                        app.count_noti = []
+                        app.user_read_man = []
+                        // console.log(app.chat_room);
+                        var key = Object.keys(snapshot.val());
+                        var data = snapshot.val();
+                        app.chat_name = data.chanel_name
+                        Vue.delete(data, 'chanel_name')
+                        for (const key in data) {
+                            if (data.hasOwnProperty(key)) {
+                                app.count += 1;
+                                const element = data[key];
+                                app.data_noti.push(element)
+                                app.last_message = parseInt(key)
+                                app.user_read_man = element.user_read
+                                var gg = 0
+
+                                var arr = (element.user_read.indexOf(app.user_name) > -1);
+                                if (!arr) {
+                                    app.count_noti.push(key)
+                                }
+
+                            }
+                        }
+                        location.href = "#focus"
+                        app.$nextTick(function () {
+                            app.$refs['mess'].focus()
+                        })
+                    }
+                })
+
+
+
+            },
+            atvchat: function (chat_room) {
+                app.chat_select.forEach((e, index) => {
+                    if (e.chat_room == chat_room) {
+                        app.chat_select[index].user_read = true
+                    } else {
+                        app.chat_select[index].user_read = false
+                    }
+                });
+            },
+            joinchat: function () {
+                app.isOpchat = !app.isOpchat
+            },
+            createroom: function (name) {
+                this.getNow();
+                var data = {
+                    0: {
+                        user_name: this.user_name,
+                        message: "ยินดีต้อนรับ",
+                        user_read: [this.user_name],
+                        timestamp: this.timestamp
+                    },
+                    chanel_name: name
+                }
+                var dbs = db.ref("live_chat/" + name).set(data)
+                this.c_name = ""
+                $('#exampleModal').modal("hide")
+            }
+        },
+    })
+</script>
+
+</html>
