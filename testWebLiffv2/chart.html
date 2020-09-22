@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.css"
+    integrity="sha512-SUJFImtiT87gVCOXl3aGC00zfDl6ggYAw5+oheJvRJ8KBXZrr/TMISSdVJ5bBarbQDRC2pR5Kto3xTR0kpZInA=="
+    crossorigin="anonymous" />
+</head>
+
+<body>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"
+    integrity="sha512-s+xg36jbIujB2S2VKfpGmlC3T5V2TF3lY48DX7u2r9XzGzgPsa6wTpOQA7J9iffvdeBN0q9tKzRxVxw1JviZPg=="
+    crossorigin="anonymous"></script>
+  <script src="dataset.js"></script>
+  <div style="width: 500px; height: 500px;">
+    <canvas id="pot_debit_crebit" width="100%" height="100%"></canvas>
+  </div>
+  <div style="width: 500px; height: 500px;">
+    <canvas id="donut_debit" width="400" height="400"></canvas>
+  </div>
+  <div style="width: 500px; height: 500px;">
+    <canvas id="donut_credit" width="400" height="400"></canvas>
+  </div>
+  <div style="width: 500px; height: 500px;">
+    <canvas id="canvas" width="400" height="400"></canvas>
+  </div>
+  <script>
+    var pot_debit_crebit = document.getElementById('pot_debit_crebit');
+    var donut_debit = document.getElementById('donut_debit');
+    var donut_credit = document.getElementById('donut_credit');
+    var debit = []
+    var credit = []
+    Mdata.forEach(element => {
+      debit.push(element.debit)
+      credit.push(element.credit)
+    });
+    var Chart_pot_debit_crebit = new Chart(pot_debit_crebit, {
+      type: 'line',
+      data: {
+        labels: mL,
+        datasets: [{
+          label: '# debit',
+          data: debit,
+          backgroundColor: "#9FFF8E44"
+        }, {
+          label: '# credit',
+          data: credit,
+          backgroundColor: "#FF0C0C44"
+
+        }]
+      },
+      options: {
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        }
+      }
+    });
+    let dataDo_debit = []
+    let labelDo_debit = []
+    let dataDo_credit = []
+    let labelDo_credit = []
+    for (const key in D_debit) {
+      console.log(D_debit[key]);
+      dataDo_debit.push(D_debit[key])
+      labelDo_debit.push(key)
+
+    }
+    for (const key in D_credit) {
+      console.log(D_credit[key]);
+      dataDo_credit.push(D_credit[key])
+      labelDo_credit.push(key)
+
+    }
+    
+    let datasetdebit = {
+      datasets: [{
+        data: dataDo_debit,
+        "backgroundColor": ["rgb(255, 99, 132)", "rgb(54, 162, 235)", "rgb(255, 3, 86)", "rgb(54, 162, 4)", "rgb(55, 205, 86)"],
+        
+      }],
+      labels: labelDo_debit
+      // These labels appear in the legend and in the tooltips when hovering different arcs
+
+    }
+    
+    let datasetcredit = {
+      datasets: [{
+        data: dataDo_credit,
+        "backgroundColor": ["rgb(255, 99, 132)", "rgb(54, 162, 235)", "rgb(255, 3, 86)", "rgb(54, 162, 4)", "rgb(55, 205, 86)"],
+        
+      }],
+      labels: labelDo_credit
+      // These labels appear in the legend and in the tooltips when hovering different arcs
+
+    }
+   
+    var Chart_donut_debit = new Chart(donut_debit, {
+      type: 'doughnut',
+      data: datasetdebit,
+
+      // options: {}
+    });
+    var Chart_donut_credit = new Chart(donut_credit, {
+      type: 'doughnut',
+      data: datasetcredit,
+
+      // options: {}
+    });
+   
+
+   
+		var barChartData = {
+			labels: ['รายได้', 'รายจ่าย',],
+			datasets: [{
+				label: ['เงินสด'],
+				backgroundColor: ["#33aa3344",'#ff111199'],
+				data: [
+					randomScalingFactor(),
+					randomScalingFactor(),
+					
+				
+				]
+			}, {
+				label: 'คาดว่าจะได้รับ',
+				backgroundColor: "#0099ff44",
+				data: [
+					randomScalingFactor(),
+					
+				]
+			},
+      {
+				label: 'รายจ่าย',
+				backgroundColor: "ff111199",
+				data: [
+        // (randomScalingFactor()*.1),
+					
+				]
+			}, 
+      ]
+
+		};
+    function randomScalingFactor(){
+      return Math.random()*20000
+    }
+		window.onload = function() {
+			var ctx = document.getElementById('canvas').getContext('2d');
+			window.myBar = new Chart(ctx, {
+				type: 'horizontalBar',
+				data: barChartData,
+				options: {
+					title: {
+						display: true,
+						text: 'Chart.js Bar Chart - Stacked'
+					},
+					tooltips: {
+						mode: 'index',
+						intersect: false
+					},
+					responsive: true,
+					scales: {
+						xAxes: [{
+							stacked: true,
+						}],
+						yAxes: [{
+							stacked: true
+						}]
+					}
+				}
+			});
+		};
+
+		// document.getElementById('randomizeData').addEventListener('click', function() {
+		// 	barChartData.datasets.forEach(function(dataset) {
+		// 		dataset.data = dataset.data.map(function() {
+		// 			return randomScalingFactor();
+		// 		});
+		// 	});
+		// 	window.myBar.update();
+		// });
+	
+  </script>
+</body>
+
+</html>
