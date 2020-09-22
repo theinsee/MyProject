@@ -15,6 +15,7 @@
   <script>
     function runApp() {
       liff.getProfile().then(profile => {
+          console.log(profile);
         document.getElementById("pictureUrl").src = profile.pictureUrl;
         document.getElementById("userId").innerHTML = '<b>UserId:</b> ' + profile.userId;
         document.getElementById("displayName").innerHTML = '<b>DisplayName:</b> ' + profile.displayName;
