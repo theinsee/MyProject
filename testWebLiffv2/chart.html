@@ -1,13 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.css"
     integrity="sha512-SUJFImtiT87gVCOXl3aGC00zfDl6ggYAw5+oheJvRJ8KBXZrr/TMISSdVJ5bBarbQDRC2pR5Kto3xTR0kpZInA=="
     crossorigin="anonymous" />
+    <style>
+      html,body{
+        padding: 0;
+        margin: 0;
+      }
+      .nav-footer{
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        justify-items: auto;
+        width: 100%;
+        height: 60px;
+        background-color: #000;
+        margin: 0;
+        /* z-index: 100000; */
+      }
+      .menu-item{
+        background-color: aliceblue;
+        margin: 0px 1px;
+        width: 100%;
+        padding: .3em;
+        text-align: center;
+      }
+    </style>
 </head>
 
 <body>
@@ -17,7 +42,7 @@
     integrity="sha512-s+xg36jbIujB2S2VKfpGmlC3T5V2TF3lY48DX7u2r9XzGzgPsa6wTpOQA7J9iffvdeBN0q9tKzRxVxw1JviZPg=="
     crossorigin="anonymous"></script>
   <script src="dataset.js"></script>
-  <div class="contianer" style="justify-items: center;">
+  <div class="contianer" style="justify-items: center; margin-bottom: 82px;">
   <div style="width: 100%; ">
     <canvas id="pot_debit_crebit" width="100%" ></canvas>
   </div>
@@ -30,6 +55,13 @@
   <div style="width: 100%;">
     <canvas id="canvas" width="100%"></canvas>
   </div>
+</div>
+<div class="nav-footer">
+  <div class="menu-item"><i class="fa fa-address-book fa-2x" aria-hidden="true"></i>asdsad</div>
+  <div class="menu-item"><i class="fa fa-adn fa-2x" aria-hidden="true"></i>asdasd</div>
+  <div class="menu-item"><i class="fa fa-amazon fa-2x" aria-hidden="true"></i>asdasd</div>
+  <div class="menu-item"><i class="fa fa-apple fa-2x" aria-hidden="true"></i>asdasd</div>
+  <div class="menu-item"><i class="fa fa-youtube fa-2x   "></i>asdasd</div>
 </div>
   <script>
     var pot_debit_crebit = document.getElementById('pot_debit_crebit');
